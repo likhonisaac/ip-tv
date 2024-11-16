@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Bangla IPTV</title>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Modern Bangla IPTV</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.0/hls.min.js"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -13,150 +14,96 @@
             --secondary-color: #ee6e73;
             --background-dark: #121212;
             --card-background: #1e1e1e;
+            --text-color: #ffffff;
         }
 
         body {
-            background-color: var(--background-dark);
-            color: white;
-            font-family: "Roboto", sans-serif;
             margin: 0;
             padding: 0;
+            background-color: var(--background-dark);
+            color: var(--text-color);
+            font-family: "Roboto", sans-serif;
             overflow-x: hidden;
         }
 
         .header {
-            padding: 20px 0;
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            margin-bottom: 30px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg, transparent 45%, rgba(255,255,255,0.1) 48%, rgba(255,255,255,0.1) 52%, transparent 55%);
-            animation: shine 3s infinite;
-        }
-
-        @keyframes shine {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-
-        h1 {
-            font-size: 2.8rem;
+            padding: 30px 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
             text-align: center;
-            margin: 0;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            animation: titleFloat 3s ease-in-out infinite;
         }
 
-        @keyframes titleFloat {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+        .header h1 {
+            font-size: 3rem;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
         }
 
         #channel-list {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             gap: 20px;
-            padding: 20px;
-            max-width: 1400px;
-            margin: 0 auto;
         }
 
         .channel-card {
-            background: var(--card-background);
-            border-radius: 15px;
+            background-color: var(--card-background);
+            border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
             cursor: pointer;
-        }
-
-        .channel-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, transparent, rgba(255,255,255,0.1));
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            position: relative;
         }
 
         .channel-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.4);
-        }
-
-        .channel-card:hover::before {
-            opacity: 1;
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
         }
 
         .channel-logo {
             width: 100%;
-            height: 160px;
+            height: 150px;
             object-fit: cover;
-            transition: transform 0.3s ease;
-        }
-
-        .channel-card:hover .channel-logo {
-            transform: scale(1.05);
         }
 
         .channel-details {
             padding: 15px;
             text-align: center;
-            position: relative;
         }
 
         .channel-title {
             font-size: 1.2rem;
-            font-weight: 500;
             margin: 0;
-            color: #fff;
-            transition: color 0.3s ease;
+            font-weight: 500;
+            color: var(--text-color);
         }
 
         #video-container {
-            position: relative;
-            width: 100%;
-            max-width: 1000px;
             margin: 30px auto;
-            border-radius: 15px;
+            max-width: 1000px;
+            border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-            transition: transform 0.3s ease;
+            background: black;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+            position: relative;
         }
 
         #video-player {
             width: 100%;
-            aspect-ratio: 16/9;
-            background: #000;
-        }
-
-        .player-controls {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(transparent, rgba(0,0,0,0.8));
-            padding: 20px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        #video-container:hover .player-controls {
-            opacity: 1;
+            height: 500px;
+            background: black;
         }
 
         .loading-animation {
@@ -166,53 +113,28 @@
             transform: translate(-50%, -50%);
             width: 60px;
             height: 60px;
-            display: none;
-        }
-
-        .loading-animation::after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
+            border: 6px solid rgba(255, 255, 255, 0.2);
+            border-top: 6px solid var(--primary-color);
             border-radius: 50%;
-            border: 3px solid transparent;
-            border-top-color: var(--primary-color);
             animation: spin 1s linear infinite;
+            z-index: 10;
+            display: none;
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
+            0% { transform: rotate(0); }
             100% { transform: rotate(360deg); }
         }
 
-        .now-playing {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(38, 166, 154, 0.9);
-            padding: 10px 20px;
-            border-radius: 25px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            display: none;
-            z-index: 1000;
-            animation: slideUp 0.5s ease;
-        }
-
-        @keyframes slideUp {
-            from { transform: translate(-50%, 100%); }
-            to { transform: translate(-50%, 0); }
-        }
-
         footer {
-            text-align: center;
-            margin-top: 40px;
+            margin-top: 30px;
             padding: 20px;
             background-color: var(--card-background);
-            border-top: 1px solid #333;
+            text-align: center;
+            color: var(--text-color);
         }
 
-        .wave {
+        footer span.wave {
             animation: wave 1s infinite linear;
             display: inline-block;
         }
@@ -225,78 +147,67 @@
     </style>
 </head>
 <body>
+    <!-- Header -->
     <div class="header">
-        <h1>🎥 Advanced Bangla IPTV</h1>
-        <p class="center-align">Experience premium Bangla television channels in HD quality</p>
+        <h1>Bangla IPTV</h1>
+        <p>Enjoy premium Bangla television anytime, anywhere</p>
     </div>
 
+    <!-- Video Player -->
     <div id="video-container">
-        <div class="loading-animation"></div>
+        <div class="loading-animation" id="loading"></div>
         <video id="video-player" controls></video>
-        <div class="player-controls">
-            <div class="progress">
-                <div class="determinate" style="width: 0%"></div>
-            </div>
-        </div>
     </div>
 
-    <div class="now-playing">
-        <span id="current-channel">Now Playing: </span>
+    <!-- Channel List -->
+    <div class="container">
+        <h2 style="text-align: center; color: var(--primary-color);">Channel List</h2>
+        <div id="channel-list"></div>
     </div>
 
-    <div id="channel-list"></div>
-
+    <!-- Footer -->
     <footer>
-        <p>© 2024 Bangla IPTV | Built with <span class="wave">❤️</span> and Modern Web Technology</p>
+        <p>© 2024 Bangla IPTV | Powered by <span class="wave">❤️</span> Modern Technology</p>
     </footer>
 
     <script>
         const rawUrl = 'https://raw.githubusercontent.com/tareqaus/vision/main/IPTV';
-        const player = document.getElementById('video-player');
         const channelList = document.getElementById('channel-list');
-        const loadingAnimation = document.querySelector('.loading-animation');
-        const nowPlaying = document.querySelector('.now-playing');
-        const currentChannel = document.getElementById('current-channel');
+        const videoPlayer = document.getElementById('video-player');
+        const loadingAnimation = document.getElementById('loading');
         let currentHls = null;
 
         async function fetchChannels(url) {
-            try {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error('Network response was not ok');
-                const text = await response.text();
-                return parseChannels(text);
-            } catch (error) {
-                console.error('Error fetching channels:', error);
-                return [];
-            }
+            const response = await fetch(url);
+            const text = await response.text();
+            return parseChannels(text);
         }
 
         function parseChannels(data) {
             const lines = data.split('\n');
-            const channelData = [];
+            const channels = [];
             for (let i = 0; i < lines.length; i++) {
                 if (lines[i].startsWith('#EXTINF')) {
                     const logoMatch = lines[i].match(/tvg-logo="([^"]+)"/);
                     const titleMatch = lines[i].match(/, (.+)/);
-                    const url = lines[i + 1];
+                    const url = lines[i + 1]?.trim();
                     if (logoMatch && titleMatch && url) {
-                        channelData.push({
+                        channels.push({
                             logo: logoMatch[1],
                             title: titleMatch[1],
-                            url: url.trim()
+                            url: url
                         });
                     }
                 }
             }
-            return channelData;
+            return channels;
         }
 
-        function createChannelCard(channel, index) {
+        function createChannelCard(channel) {
             const card = document.createElement('div');
             card.className = 'channel-card';
-            card.style.animation = `fadeIn 0.5s ease forwards ${index * 0.1}s`;
             card.innerHTML = `
-                <img src="${channel.logo}" alt="${channel.title}" class="channel-logo" loading="lazy">
+                <img src="${channel.logo}" alt="${channel.title}" class="channel-logo">
                 <div class="channel-details">
                     <p class="channel-title">${channel.title}</p>
                 </div>
@@ -307,94 +218,34 @@
 
         function playChannel(channel) {
             loadingAnimation.style.display = 'block';
-            if (currentHls) {
-                currentHls.destroy();
-            }
+            if (currentHls) currentHls.destroy();
 
             if (Hls.isSupported()) {
-                currentHls = new Hls({
-                    debug: false,
-                    enableWorker: true,
-                    lowLatencyMode: true
-                });
-                
+                currentHls = new Hls();
                 currentHls.loadSource(channel.url);
-                currentHls.attachMedia(player);
-                
+                currentHls.attachMedia(videoPlayer);
                 currentHls.on(Hls.Events.MANIFEST_PARSED, () => {
-                    player.play()
-                        .then(() => {
-                            loadingAnimation.style.display = 'none';
-                            showNowPlaying(channel.title);
-                        })
-                        .catch(error => {
-                            console.error('Playback failed:', error);
-                            loadingAnimation.style.display = 'none';
-                        });
-                });
-
-                currentHls.on(Hls.Events.ERROR, (event, data) => {
-                    if (data.fatal) {
-                        console.error('HLS error:', data);
+                    videoPlayer.play().then(() => {
                         loadingAnimation.style.display = 'none';
-                    }
+                    });
                 });
-            } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
-                player.src = channel.url;
-                player.addEventListener('loadedmetadata', () => {
-                    player.play()
-                        .then(() => {
-                            loadingAnimation.style.display = 'none';
-                            showNowPlaying(channel.title);
-                        })
-                        .catch(error => {
-                            console.error('Playback failed:', error);
-                            loadingAnimation.style.display = 'none';
-                        });
+            } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                videoPlayer.src = channel.url;
+                videoPlayer.addEventListener('loadedmetadata', () => {
+                    videoPlayer.play().then(() => {
+                        loadingAnimation.style.display = 'none';
+                    });
                 });
             }
-
-            scrollToPlayer();
-        }
-
-        function showNowPlaying(title) {
-            currentChannel.textContent = `Now Playing: ${title}`;
-            nowPlaying.style.display = 'block';
-            setTimeout(() => {
-                nowPlaying.style.display = 'none';
-            }, 5000);
-        }
-
-        function scrollToPlayer() {
-            const videoContainer = document.getElementById('video-container');
-            videoContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         async function initialize() {
-            const channelData = await fetchChannels(rawUrl);
-            channelList.innerHTML = '';
-            channelData.forEach((channel, index) => {
-                const card = createChannelCard(channel, index);
+            const channels = await fetchChannels(rawUrl);
+            channels.forEach(channel => {
+                const card = createChannelCard(channel);
                 channelList.appendChild(card);
             });
         }
-
-        // Add quality selection if available
-        player.addEventListener('loadedmetadata', () => {
-            if (currentHls && currentHls.levels.length > 1) {
-                const qualityLevels = currentHls.levels.map((level, index) => ({
-                    height: level.height,
-                    index: index
-                }));
-                // Implementation for quality selection UI could go here
-            }
-        });
-
-        // Handle player errors
-        player.addEventListener('error', (e) => {
-            console.error('Video player error:', e);
-            loadingAnimation.style.display = 'none';
-        });
 
         initialize();
     </script>
