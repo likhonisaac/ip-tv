@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bangla IPTV</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.0/hls.min.js"></script>
+    <style>
+        body {
+            background-color: #121212;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            margin-top: 20px;
+        }
+        .channel-card {
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .channel-card:hover {
+            background-color: #333;
+        }
+        .channel-logo {
+            max-width: 80px;
+            max-height: 80px;
+            margin-right: 15px;
+        }
+        .channel-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        #video-player {
+            width: 100%;
+            height: 500px;
+            background-color: black;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Bangla IPTV Channels</h1>
+        <p class="text-center">Click on a channel to start watching.</p>
+        <div id="channel-list" class="row"></div>
+        <video id="video-player" controls></video>
+    </div>
+
+    <script>
+        const rawUrl = 'https://raw.githubusercontent.com/tareqaus/vision/main/IPTV';
+        const player = document.getElementById('video-player');
+        const channelList = document.getElementById('channel-list');
+
+        async function fetchChannels(url) {
+            const response = await fetch(url);
+            const text = await response.text();
+            return parseChannels(text);
+        }
+
+        function parseChannels(data) {
+            const lines = data.split('\n');
+            const channelData = [];
+            for (let i = 0; i < lines.length; i++) {
+                if (lines[i].startsWith('#EXTINF')) {
+                    const logoMatch = lines[i].match(/tvg-logo="([^"]+)"/);
+                    const titleMatch = lines[i].match(/, (.+)/);
+                    const url = lines[i + 1];
+                    if (logoMatch && titleMatch && url) {
+                        channelData.push({
+                            logo: logoMatch[1],
+                            title: titleMatch[1],
+                            url: url.trim()
+                        });
+                    }
+                }
+            }
+            return channelData;
+        }
+
+        function createChannelCard(channel) {
+            const card = document.createElement('div');
+            card.className = 'channel-card col-md-6';
+            card.innerHTML = `
+                <img src="${channel.logo}" alt="${channel.title}" class="channel-logo">
+                <div class="channel-title">${channel.title}</div>
+            `;
+            card.onclick = () => playChannel(channel.url);
+            return card;
+        }
+
+        function playChannel(url) {
+            if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(url);
+                hls.attachMedia(player);
+            } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
+                player.src = url;
+            }
+            player.play();
+        }
+
+        async function initialize() {
+            const channelData = await fetchChannels(rawUrl);
+            channelData.forEach(channel => {
+                const card = createChannelCard(channel);
+                channelList.appendChild(card);
+            });
+        }
+
+        initialize();
+    </script>
+</body>
+</html>
