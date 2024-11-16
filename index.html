@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Modern Bangla IPTV</title>
+    <title>Advanced Bangla IPTV</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.0/hls.min.js"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -14,67 +13,56 @@
             --secondary-color: #ee6e73;
             --background-dark: #121212;
             --card-background: #1e1e1e;
-            --text-color: #ffffff;
         }
 
         body {
+            background-color: var(--background-dark);
+            color: white;
+            font-family: "Roboto", sans-serif;
             margin: 0;
             padding: 0;
-            background-color: var(--background-dark);
-            color: var(--text-color);
-            font-family: "Roboto", sans-serif;
-            overflow-x: hidden;
         }
 
         .header {
+            padding: 20px 0;
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            padding: 30px 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
             text-align: center;
         }
 
         .header h1 {
-            font-size: 3rem;
+            font-size: 2.8rem;
             margin: 0;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        .header p {
-            font-size: 1.2rem;
-            margin-top: 10px;
-            opacity: 0.9;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 30px auto;
-            padding: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
         #channel-list {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             gap: 20px;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
         .channel-card {
-            background-color: var(--card-background);
-            border-radius: 10px;
+            background: var(--card-background);
+            border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            transition: transform 0.4s ease;
             cursor: pointer;
-            position: relative;
         }
 
         .channel-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.4);
         }
 
         .channel-logo {
             width: 100%;
-            height: 150px;
+            height: 160px;
             object-fit: cover;
         }
 
@@ -83,27 +71,20 @@
             text-align: center;
         }
 
-        .channel-title {
-            font-size: 1.2rem;
-            margin: 0;
-            font-weight: 500;
-            color: var(--text-color);
-        }
-
         #video-container {
-            margin: 30px auto;
-            max-width: 1000px;
-            border-radius: 10px;
-            overflow: hidden;
-            background: black;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
             position: relative;
+            width: 100%;
+            max-width: 1000px;
+            margin: 30px auto;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
         }
 
         #video-player {
             width: 100%;
-            height: 500px;
-            background: black;
+            aspect-ratio: 16 / 9;
+            background: #000;
         }
 
         .loading-animation {
@@ -113,74 +94,67 @@
             transform: translate(-50%, -50%);
             width: 60px;
             height: 60px;
-            border: 6px solid rgba(255, 255, 255, 0.2);
-            border-top: 6px solid var(--primary-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            z-index: 10;
             display: none;
         }
 
+        .loading-animation::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            border-top-color: var(--primary-color);
+            animation: spin 1s linear infinite;
+        }
+
         @keyframes spin {
-            0% { transform: rotate(0); }
+            0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
 
         footer {
-            margin-top: 30px;
+            text-align: center;
+            margin-top: 40px;
             padding: 20px;
             background-color: var(--card-background);
-            text-align: center;
-            color: var(--text-color);
-        }
-
-        footer span.wave {
-            animation: wave 1s infinite linear;
-            display: inline-block;
-        }
-
-        @keyframes wave {
-            0%, 100% { transform: rotate(0); }
-            25% { transform: rotate(-10deg); }
-            75% { transform: rotate(10deg); }
+            border-top: 1px solid #333;
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
     <div class="header">
-        <h1>Bangla IPTV</h1>
-        <p>Enjoy premium Bangla television anytime, anywhere</p>
+        <h1>Advanced Bangla IPTV</h1>
+        <p>Experience premium Bangla television channels in HD quality</p>
     </div>
 
-    <!-- Video Player -->
     <div id="video-container">
-        <div class="loading-animation" id="loading"></div>
+        <div class="loading-animation"></div>
         <video id="video-player" controls></video>
     </div>
 
-    <!-- Channel List -->
-    <div class="container">
-        <h2 style="text-align: center; color: var(--primary-color);">Channel List</h2>
-        <div id="channel-list"></div>
-    </div>
+    <div id="channel-list"></div>
 
-    <!-- Footer -->
     <footer>
-        <p>© 2024 Bangla IPTV | Powered by <span class="wave">❤️</span> Modern Technology</p>
+        <p>© 2024 Bangla IPTV | Built with ❤️ and Modern Web Technology</p>
     </footer>
 
     <script>
         const rawUrl = 'https://raw.githubusercontent.com/tareqaus/vision/main/IPTV';
+        const player = document.getElementById('video-player');
         const channelList = document.getElementById('channel-list');
-        const videoPlayer = document.getElementById('video-player');
-        const loadingAnimation = document.getElementById('loading');
+        const loadingAnimation = document.querySelector('.loading-animation');
         let currentHls = null;
 
         async function fetchChannels(url) {
-            const response = await fetch(url);
-            const text = await response.text();
-            return parseChannels(text);
+            try {
+                const response = await fetch(url);
+                const text = await response.text();
+                return parseChannels(text);
+            } catch (error) {
+                console.error('Error fetching channels:', error);
+                return [];
+            }
         }
 
         function parseChannels(data) {
@@ -190,12 +164,13 @@
                 if (lines[i].startsWith('#EXTINF')) {
                     const logoMatch = lines[i].match(/tvg-logo="([^"]+)"/);
                     const titleMatch = lines[i].match(/, (.+)/);
-                    const url = lines[i + 1]?.trim();
+                    const url = lines[i + 1];
                     if (logoMatch && titleMatch && url) {
                         channels.push({
                             logo: logoMatch[1],
                             title: titleMatch[1],
-                            url: url
+                            url: url.trim(),
+                            valid: false
                         });
                     }
                 }
@@ -203,13 +178,39 @@
             return channels;
         }
 
-        function createChannelCard(channel) {
+        async function checkChannelAvailability(channel) {
+            try {
+                const response = await fetch(channel.url, { method: 'HEAD' });
+                if (response.ok) {
+                    channel.valid = true;
+                }
+            } catch (error) {
+                console.warn(`Channel "${channel.title}" is unavailable.`);
+            }
+        }
+
+        async function initializeChannels() {
+            const channels = await fetchChannels(rawUrl);
+            await Promise.all(
+                channels.map(channel => checkChannelAvailability(channel))
+            );
+
+            channelList.innerHTML = '';
+            channels.forEach((channel, index) => {
+                if (channel.valid) {
+                    const card = createChannelCard(channel, index);
+                    channelList.appendChild(card);
+                }
+            });
+        }
+
+        function createChannelCard(channel, index) {
             const card = document.createElement('div');
             card.className = 'channel-card';
             card.innerHTML = `
                 <img src="${channel.logo}" alt="${channel.title}" class="channel-logo">
                 <div class="channel-details">
-                    <p class="channel-title">${channel.title}</p>
+                    <p>${channel.title}</p>
                 </div>
             `;
             card.onclick = () => playChannel(channel);
@@ -218,36 +219,34 @@
 
         function playChannel(channel) {
             loadingAnimation.style.display = 'block';
-            if (currentHls) currentHls.destroy();
+
+            if (currentHls) {
+                currentHls.destroy();
+            }
 
             if (Hls.isSupported()) {
                 currentHls = new Hls();
                 currentHls.loadSource(channel.url);
-                currentHls.attachMedia(videoPlayer);
+                currentHls.attachMedia(player);
+
                 currentHls.on(Hls.Events.MANIFEST_PARSED, () => {
-                    videoPlayer.play().then(() => {
-                        loadingAnimation.style.display = 'none';
-                    });
+                    player.play().finally(() => loadingAnimation.style.display = 'none');
                 });
-            } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
-                videoPlayer.src = channel.url;
-                videoPlayer.addEventListener('loadedmetadata', () => {
-                    videoPlayer.play().then(() => {
-                        loadingAnimation.style.display = 'none';
-                    });
+
+                currentHls.on(Hls.Events.ERROR, (event, data) => {
+                    console.error('HLS error:', data);
+                    loadingAnimation.style.display = 'none';
                 });
+            } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
+                player.src = channel.url;
+                player.play().finally(() => loadingAnimation.style.display = 'none');
+            } else {
+                alert('Your browser does not support HLS playback.');
+                loadingAnimation.style.display = 'none';
             }
         }
 
-        async function initialize() {
-            const channels = await fetchChannels(rawUrl);
-            channels.forEach(channel => {
-                const card = createChannelCard(channel);
-                channelList.appendChild(card);
-            });
-        }
-
-        initialize();
+        initializeChannels();
     </script>
 </body>
 </html>
