@@ -3,60 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bangla IPTV</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <title>Advanced Bangla IPTV</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.0/hls.min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         body {
             background-color: #121212;
             color: white;
-            font-family: Arial, sans-serif;
+            font-family: "Roboto", sans-serif;
+            margin: 0;
+            padding: 0;
         }
         .container {
-            margin-top: 20px;
+            margin-top: 30px;
+        }
+        h1 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #channel-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
         }
         .channel-card {
-            background-color: #1e1e1e;
-            border: 1px solid #333;
+            background: #1e1e1e;
             border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
             cursor: pointer;
-            transition: background-color 0.3s;
         }
         .channel-card:hover {
-            background-color: #333;
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
         }
         .channel-logo {
-            max-width: 80px;
-            max-height: 80px;
-            margin-right: 15px;
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+        }
+        .channel-details {
+            padding: 10px;
+            text-align: center;
         }
         .channel-title {
-            font-size: 18px;
+            font-size: 1.1rem;
             font-weight: bold;
+            margin: 0;
+        }
+        #video-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin: 30px auto;
+            background: black;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
         }
         #video-player {
             width: 100%;
-            height: 500px;
-            background-color: black;
+            height: 450px;
+        }
+        .loading-animation {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.2);
+            border-top: 5px solid #26a69a;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            display: none;
+        }
+        @keyframes spin {
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+            100% {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #1e1e1e;
+            border-top: 1px solid #333;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="text-center">Bangla IPTV Channels</h1>
-        <p class="text-center">Click on a channel to start watching.</p>
-        <div id="channel-list" class="row"></div>
+        <h1>🎥 Advanced Bangla IPTV</h1>
+        <p class="center-align">Select a channel to start watching live TV.</p>
+        <div id="channel-list"></div>
+    </div>
+
+    <div id="video-container">
+        <div class="loading-animation" id="loading"></div>
         <video id="video-player" controls></video>
     </div>
+
+    <footer>
+        <p>© 2024 Bangla IPTV. Built with ❤️ and JavaScript.</p>
+    </footer>
 
     <script>
         const rawUrl = 'https://raw.githubusercontent.com/tareqaus/vision/main/IPTV';
         const player = document.getElementById('video-player');
         const channelList = document.getElementById('channel-list');
+        const loadingAnimation = document.getElementById('loading');
 
         async function fetchChannels(url) {
             const response = await fetch(url);
@@ -86,24 +149,34 @@
 
         function createChannelCard(channel) {
             const card = document.createElement('div');
-            card.className = 'channel-card col-md-6';
+            card.className = 'channel-card';
             card.innerHTML = `
                 <img src="${channel.logo}" alt="${channel.title}" class="channel-logo">
-                <div class="channel-title">${channel.title}</div>
+                <div class="channel-details">
+                    <p class="channel-title">${channel.title}</p>
+                </div>
             `;
             card.onclick = () => playChannel(channel.url);
             return card;
         }
 
         function playChannel(url) {
+            loadingAnimation.style.display = 'block'; // Show loading animation
             if (Hls.isSupported()) {
                 const hls = new Hls();
                 hls.loadSource(url);
                 hls.attachMedia(player);
+                hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                    player.play();
+                    loadingAnimation.style.display = 'none'; // Hide loading animation
+                });
             } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
                 player.src = url;
+                player.addEventListener('loadedmetadata', () => {
+                    player.play();
+                    loadingAnimation.style.display = 'none'; // Hide loading animation
+                });
             }
-            player.play();
         }
 
         async function initialize() {
