@@ -8,123 +8,267 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.0/hls.min.js"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #26a69a;
+            --secondary-color: #ee6e73;
+            --background-dark: #121212;
+            --card-background: #1e1e1e;
+        }
+
         body {
-            background-color: #121212;
+            background-color: var(--background-dark);
             color: white;
             font-family: "Roboto", sans-serif;
             margin: 0;
             padding: 0;
+            overflow-x: hidden;
         }
-        .container {
-            margin-top: 30px;
+
+        .header {
+            padding: 20px 0;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
         }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 45%, rgba(255,255,255,0.1) 48%, rgba(255,255,255,0.1) 52%, transparent 55%);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
         h1 {
-            font-size: 2.5rem;
+            font-size: 2.8rem;
             text-align: center;
-            margin-bottom: 20px;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: titleFloat 3s ease-in-out infinite;
         }
+
+        @keyframes titleFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
         #channel-list {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
         }
+
         .channel-card {
-            background: #1e1e1e;
-            border-radius: 10px;
+            background: var(--card-background);
+            border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
             cursor: pointer;
         }
-        .channel-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+
+        .channel-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, transparent, rgba(255,255,255,0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
+
+        .channel-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.4);
+        }
+
+        .channel-card:hover::before {
+            opacity: 1;
+        }
+
         .channel-logo {
             width: 100%;
-            height: 120px;
+            height: 160px;
             object-fit: cover;
+            transition: transform 0.3s ease;
         }
+
+        .channel-card:hover .channel-logo {
+            transform: scale(1.05);
+        }
+
         .channel-details {
-            padding: 10px;
+            padding: 15px;
             text-align: center;
+            position: relative;
         }
+
         .channel-title {
-            font-size: 1.1rem;
-            font-weight: bold;
+            font-size: 1.2rem;
+            font-weight: 500;
             margin: 0;
+            color: #fff;
+            transition: color 0.3s ease;
         }
+
         #video-container {
             position: relative;
             width: 100%;
-            max-width: 800px;
+            max-width: 1000px;
             margin: 30px auto;
-            background: black;
-            border-radius: 10px;
+            border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            transition: transform 0.3s ease;
         }
+
         #video-player {
             width: 100%;
-            height: 450px;
+            aspect-ratio: 16/9;
+            background: #000;
         }
+
+        .player-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        #video-container:hover .player-controls {
+            opacity: 1;
+        }
+
         .loading-animation {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255, 255, 255, 0.2);
-            border-top: 5px solid #26a69a;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            z-index: 10;
+            width: 60px;
+            height: 60px;
             display: none;
         }
-        @keyframes spin {
-            0% {
-                transform: translate(-50%, -50%) rotate(0deg);
-            }
-            100% {
-                transform: translate(-50%, -50%) rotate(360deg);
-            }
+
+        .loading-animation::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            border-top-color: var(--primary-color);
+            animation: spin 1s linear infinite;
         }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .now-playing {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(38, 166, 154, 0.9);
+            padding: 10px 20px;
+            border-radius: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 1000;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translate(-50%, 100%); }
+            to { transform: translate(-50%, 0); }
+        }
+
         footer {
             text-align: center;
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #1e1e1e;
+            margin-top: 40px;
+            padding: 20px;
+            background-color: var(--card-background);
             border-top: 1px solid #333;
+        }
+
+        .wave {
+            animation: wave 1s infinite linear;
+            display: inline-block;
+        }
+
+        @keyframes wave {
+            0%, 100% { transform: rotate(0); }
+            25% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="header">
         <h1>🎥 Advanced Bangla IPTV</h1>
-        <p class="center-align">Select a channel to start watching live TV.</p>
-        <div id="channel-list"></div>
+        <p class="center-align">Experience premium Bangla television channels in HD quality</p>
     </div>
 
     <div id="video-container">
-        <div class="loading-animation" id="loading"></div>
+        <div class="loading-animation"></div>
         <video id="video-player" controls></video>
+        <div class="player-controls">
+            <div class="progress">
+                <div class="determinate" style="width: 0%"></div>
+            </div>
+        </div>
     </div>
 
+    <div class="now-playing">
+        <span id="current-channel">Now Playing: </span>
+    </div>
+
+    <div id="channel-list"></div>
+
     <footer>
-        <p>© 2024 Bangla IPTV. Built with ❤️ and JavaScript.</p>
+        <p>© 2024 Bangla IPTV | Built with <span class="wave">❤️</span> and Modern Web Technology</p>
     </footer>
 
     <script>
         const rawUrl = 'https://raw.githubusercontent.com/tareqaus/vision/main/IPTV';
         const player = document.getElementById('video-player');
         const channelList = document.getElementById('channel-list');
-        const loadingAnimation = document.getElementById('loading');
+        const loadingAnimation = document.querySelector('.loading-animation');
+        const nowPlaying = document.querySelector('.now-playing');
+        const currentChannel = document.getElementById('current-channel');
+        let currentHls = null;
 
         async function fetchChannels(url) {
-            const response = await fetch(url);
-            const text = await response.text();
-            return parseChannels(text);
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Network response was not ok');
+                const text = await response.text();
+                return parseChannels(text);
+            } catch (error) {
+                console.error('Error fetching channels:', error);
+                return [];
+            }
         }
 
         function parseChannels(data) {
@@ -147,45 +291,110 @@
             return channelData;
         }
 
-        function createChannelCard(channel) {
+        function createChannelCard(channel, index) {
             const card = document.createElement('div');
             card.className = 'channel-card';
+            card.style.animation = `fadeIn 0.5s ease forwards ${index * 0.1}s`;
             card.innerHTML = `
-                <img src="${channel.logo}" alt="${channel.title}" class="channel-logo">
+                <img src="${channel.logo}" alt="${channel.title}" class="channel-logo" loading="lazy">
                 <div class="channel-details">
                     <p class="channel-title">${channel.title}</p>
                 </div>
             `;
-            card.onclick = () => playChannel(channel.url);
+            card.onclick = () => playChannel(channel);
             return card;
         }
 
-        function playChannel(url) {
-            loadingAnimation.style.display = 'block'; // Show loading animation
+        function playChannel(channel) {
+            loadingAnimation.style.display = 'block';
+            if (currentHls) {
+                currentHls.destroy();
+            }
+
             if (Hls.isSupported()) {
-                const hls = new Hls();
-                hls.loadSource(url);
-                hls.attachMedia(player);
-                hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                    player.play();
-                    loadingAnimation.style.display = 'none'; // Hide loading animation
+                currentHls = new Hls({
+                    debug: false,
+                    enableWorker: true,
+                    lowLatencyMode: true
+                });
+                
+                currentHls.loadSource(channel.url);
+                currentHls.attachMedia(player);
+                
+                currentHls.on(Hls.Events.MANIFEST_PARSED, () => {
+                    player.play()
+                        .then(() => {
+                            loadingAnimation.style.display = 'none';
+                            showNowPlaying(channel.title);
+                        })
+                        .catch(error => {
+                            console.error('Playback failed:', error);
+                            loadingAnimation.style.display = 'none';
+                        });
+                });
+
+                currentHls.on(Hls.Events.ERROR, (event, data) => {
+                    if (data.fatal) {
+                        console.error('HLS error:', data);
+                        loadingAnimation.style.display = 'none';
+                    }
                 });
             } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
-                player.src = url;
+                player.src = channel.url;
                 player.addEventListener('loadedmetadata', () => {
-                    player.play();
-                    loadingAnimation.style.display = 'none'; // Hide loading animation
+                    player.play()
+                        .then(() => {
+                            loadingAnimation.style.display = 'none';
+                            showNowPlaying(channel.title);
+                        })
+                        .catch(error => {
+                            console.error('Playback failed:', error);
+                            loadingAnimation.style.display = 'none';
+                        });
                 });
             }
+
+            scrollToPlayer();
+        }
+
+        function showNowPlaying(title) {
+            currentChannel.textContent = `Now Playing: ${title}`;
+            nowPlaying.style.display = 'block';
+            setTimeout(() => {
+                nowPlaying.style.display = 'none';
+            }, 5000);
+        }
+
+        function scrollToPlayer() {
+            const videoContainer = document.getElementById('video-container');
+            videoContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         async function initialize() {
             const channelData = await fetchChannels(rawUrl);
-            channelData.forEach(channel => {
-                const card = createChannelCard(channel);
+            channelList.innerHTML = '';
+            channelData.forEach((channel, index) => {
+                const card = createChannelCard(channel, index);
                 channelList.appendChild(card);
             });
         }
+
+        // Add quality selection if available
+        player.addEventListener('loadedmetadata', () => {
+            if (currentHls && currentHls.levels.length > 1) {
+                const qualityLevels = currentHls.levels.map((level, index) => ({
+                    height: level.height,
+                    index: index
+                }));
+                // Implementation for quality selection UI could go here
+            }
+        });
+
+        // Handle player errors
+        player.addEventListener('error', (e) => {
+            console.error('Video player error:', e);
+            loadingAnimation.style.display = 'none';
+        });
 
         initialize();
     </script>
