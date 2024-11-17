@@ -86,6 +86,29 @@
             height: 100%;
         }
 
+        .spinner {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .spinner i {
+            font-size: 50px;
+            color: var(--primary-color);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
         @media (max-width: 768px) {
             .channel-card {
                 width: calc(50% - 20px);
@@ -109,6 +132,10 @@
         <input type="text" id="search" placeholder="Search Channels...">
     </header>
 
+    <div class="spinner">
+        <i class="fas fa-spinner"></i>
+    </div>
+
     <div class="container" id="channels"></div>
 
     <div id="video-container">
@@ -116,21 +143,25 @@
     </div>
 
     <script>
-        const proxyUrl = "https://cors-anywhere.herokuapp.com/"; // Use a CORS proxy
+        const proxyUrl = "https://corsproxy.io/?"; // Alternative CORS proxy
         const playlistUrl = "https://raw.githubusercontent.com/likhonisaac/ip-tv/refs/heads/main/IPTV";
 
         const container = document.getElementById('channels');
         const videoContainer = document.getElementById('video-container');
         const videoPlayer = document.getElementById('video-player');
         const searchInput = document.getElementById('search');
+        const spinner = document.querySelector('.spinner');
 
         async function fetchPlaylist(url) {
             try {
+                spinner.style.display = 'block'; // Show spinner
                 const response = await fetch(proxyUrl + url);
                 const data = await response.text();
+                spinner.style.display = 'none'; // Hide spinner
                 return data;
             } catch (error) {
                 console.error("Failed to fetch playlist:", error);
+                spinner.style.display = 'none'; // Hide spinner
                 return null;
             }
         }
