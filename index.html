@@ -4,500 +4,560 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Advanced Bangla IPTV</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.0/hls.min.js"></script>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
         :root {
-            --primary-color: #2196f3;
-            --secondary-color: #1976d2;
-            --accent-color: #64b5f6;
-            --background-dark: #0a1929;
-            --card-background: #132f4c;
-            --text-primary: #ffffff;
-            --text-secondary: #b2bac2;
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --background-color: #ecf0f1;
+            --text-color: #2c3e50;
+            --card-background: #ffffff;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --header-height: 60px;
+            --sidebar-width: 250px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            background-color: var(--background-dark);
-            color: var(--text-primary);
-            font-family: "Roboto", system-ui, -apple-system, sans-serif;
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
             display: flex;
-            flex-direction: column;
+            min-height: 100vh;
         }
 
-        .header {
-            padding: 2rem 0;
-            background: linear-gradient(145deg, var(--primary-color), var(--secondary-color));
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header::before {
-            content: '';
-            position: absolute;
+        header {
+            position: fixed;
             top: 0;
             left: 0;
             right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.1) 0%, transparent 60%);
+            height: var(--header-height);
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 1000;
         }
 
-        .header h1 {
-            font-size: 3rem;
-            margin: 0;
-            text-align: center;
-            font-weight: 700;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            position: relative;
+        header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--card-background);
+            height: calc(100vh - var(--header-height));
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            overflow-y: auto;
+            transition: transform 0.3s ease-in-out;
+            z-index: 900;
+        }
+
+        .sidebar-content {
+            padding: 20px;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            margin-top: var(--header-height);
+            padding: 20px;
         }
 
         #video-container {
             position: relative;
             width: 100%;
-            max-width: 1200px;
-            margin: 2rem auto;
-            border-radius: 1rem;
-            overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-            background: var(--card-background);
-            transition: transform 0.3s ease;
-        }
-
-        #video-container:hover {
-            transform: translateY(-5px);
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+            background-color: #000;
+            margin-bottom: 20px;
         }
 
         #video-player {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            aspect-ratio: 16 / 9;
-            background: #000;
+            height: 100%;
         }
 
-        #channel-list {
+        .channel-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem;
-            padding: 1.5rem;
-            max-width: 1400px;
-            margin: 0 auto;
-            flex-grow: 1;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
         }
 
         .channel-card {
-            background: var(--card-background);
-            border-radius: 1rem;
+            background-color: var(--card-background);
+            border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.2s ease-in-out;
             cursor: pointer;
         }
 
         .channel-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 12px 28px rgba(0,0,0,0.3);
+            transform: translateY(-5px);
         }
 
-        .channel-card::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 1rem;
-            border: 2px solid transparent;
-            transition: border-color 0.3s ease;
-        }
-
-        .channel-card:hover::after {
-            border-color: var(--accent-color);
-        }
-
-        .channel-logo {
+        .channel-card img {
             width: 100%;
-            height: 180px;
+            height: 120px;
             object-fit: cover;
-            transition: transform 0.4s ease;
         }
 
-        .channel-card:hover .channel-logo {
-            transform: scale(1.05);
+        .channel-card .channel-info {
+            padding: 10px;
         }
 
-        .channel-details {
-            padding: 1.25rem;
-            text-align: center;
-            background: linear-gradient(0deg, var(--card-background) 0%, rgba(19, 47, 76, 0.8) 100%);
+        .channel-card h3 {
+            font-size: 1rem;
+            margin-bottom: 5px;
         }
 
-        .channel-details p {
-            margin: 0;
-            font-size: 1.1rem;
-            color: var(--text-primary);
-            font-weight: 500;
+        .search-box {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 20px;
         }
 
-        .loading-animation {
+        .category-filter {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .category-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .category-btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .category-btn.active {
+            background-color: var(--secondary-color);
+        }
+
+        .loading-spinner {
+            display: none;
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 60px;
-            height: 60px;
-            display: none;
-        }
-
-        .loading-animation::after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-color);
             border-radius: 50%;
-            border: 3px solid rgba(255,255,255,0.1);
-            border-top-color: var(--primary-color);
-            animation: spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        #search-container {
-            max-width: 600px;
-            margin: 0 auto 2rem;
-            padding: 0 1rem;
-        }
-
-        #search-input {
-            background-color: rgba(255, 255, 255, 0.1);
-            border: none;
-            border-radius: 2rem;
-            color: var(--text-primary);
-            padding: 0.5rem 1rem 0.5rem 3rem;
-            width: 100%;
-            font-size: 1rem;
-        }
-
-        #search-input::placeholder {
-            color: var(--text-secondary);
-        }
-
-        #search-icon {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-secondary);
-        }
-
-        .search-wrapper {
-            position: relative;
-        }
-
-        #category-filter {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .category-btn {
-            background-color: var(--card-background);
-            color: var(--text-primary);
-            border: none;
-            border-radius: 2rem;
-            padding: 0.5rem 1rem;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.3s ease;
-        }
-
-        .category-btn:hover, .category-btn.active {
-            background-color: var(--primary-color);
-            transform: translateY(-2px);
-        }
-
-        footer {
-            text-align: center;
-            padding: 1.5rem;
-            background-color: var(--card-background);
-            border-top: 1px solid rgba(255,255,255,0.1);
-            margin-top: 3rem;
-        }
-
-        footer p {
-            color: var(--text-secondary);
-            margin: 0;
-        }
-
-        footer a {
-            color: var(--accent-color);
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        footer a:hover {
-            color: var(--primary-color);
-        }
-
-        #now-playing {
-            text-align: center;
-            font-size: 1.2rem;
-            margin-top: 1rem;
-            font-weight: 500;
-            color: var(--accent-color);
-        }
-
-        #channel-list-spinner {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 200px;
-        }
-
-        .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top: 4px solid var(--primary-color);
-            width: 40px;
-            height: 40px;
             animation: spin 1s linear infinite;
         }
 
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: color 0.2s ease-in-out;
+        }
+
+        .control-btn:hover {
+            color: var(--primary-color);
+        }
+
+        .volume-slider {
+            width: 100px;
+        }
+
+        .quality-select {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        #now-playing {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        #error-message {
+            display: none;
+            background-color: #e74c3c;
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
         @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2rem;
+            .sidebar {
+                transform: translateX(-100%);
             }
 
-            #channel-list {
-                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-                padding: 1rem;
+            .sidebar.active {
+                transform: translateX(0);
             }
 
-            #search-container {
-                padding: 0 0.5rem;
+            .main-content {
+                margin-left: 0;
             }
 
-            .category-btn {
-                font-size: 0.9rem;
-                padding: 0.4rem 0.8rem;
+            .channel-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             }
         }
     </style>
 </head>
 <body>
-    <header class="header">
+    <header>
         <h1>Advanced Bangla IPTV</h1>
+        <button id="sidebar-toggle" class="control-btn">
+            <i class="fas fa-bars"></i>
+        </button>
     </header>
 
-    <div id="search-container">
-        <div class="search-wrapper">
-            <i class="material-icons" id="search-icon">search</i>
-            <input type="text" id="search-input" placeholder="Search channels...">
-        </div>
+    <div class="container">
+        <aside class="sidebar">
+            <div class="sidebar-content">
+                <input type="text" id="search-input" class="search-box" placeholder="Search channels...">
+                <div class="category-filter" id="category-filter"></div>
+                <h2>Favorites</h2>
+                <div id="favorites-list"></div>
+                <h2>Recent</h2>
+                <div id="recent-list"></div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div id="video-container">
+                <video id="video-player" controls></video>
+                <div id="now-playing"></div>
+                <div class="loading-spinner"></div>
+                <div class="controls">
+                    <button id="play-pause" class="control-btn">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <input type="range" id="volume-slider" class="volume-slider" min="0" max="1" step="0.1" value="1">
+                    <select id="quality-select" class="quality-select"></select>
+                    <button id="pip-button" class="control-btn">
+                        <i class="fas fa-external-link-alt"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="error-message"></div>
+            <div class="channel-grid" id="channel-grid"></div>
+        </main>
     </div>
-
-    <div id="category-filter">
-        <button class="category-btn active" data-category="all">All</button>
-        <button class="category-btn" data-category="news">News</button>
-        <button class="category-btn" data-category="entertainment">Entertainment</button>
-        <button class="category-btn" data-category="sports">Sports</button>
-        <button class="category-btn" data-category="music">Music</button>
-    </div>
-
-    <div id="video-container">
-        <div class="loading-animation"></div>
-        <video id="video-player" controls></video>
-        <div id="now-playing"></div>
-    </div>
-
-    <div id="channel-list-spinner">
-        <div class="spinner"></div>
-    </div>
-
-    <div id="channel-list"></div>
-
-    <footer>
-        <p>© 2024 Bangla IPTV | Built with ❤️ and Modern Web Technology<br>
-        Powered by <a href="https://t.me/RexxCheat" target="_blank" rel="noopener noreferrer">t.me/RexxCheat</a></p>
-    </footer>
 
     <script>
         const rawUrl = 'https://raw.githubusercontent.com/likhonisaac/ip-tv/refs/heads/main/IPTV';
         const player = document.getElementById('video-player');
-        const channelList = document.getElementById('channel-list');
-        const loadingAnimation = document.querySelector('.loading-animation');
+        const channelGrid = document.getElementById('channel-grid');
         const searchInput = document.getElementById('search-input');
-        const categoryButtons = document.querySelectorAll('.category-btn');
+        const categoryFilter = document.getElementById('category-filter');
         const nowPlaying = document.getElementById('now-playing');
-        const channelListSpinner = document.getElementById('channel-list-spinner');
-        let currentHls = null;
-        let allChannels = [];
-        let currentPage = 1;
-        const channelsPerPage = 20;
+        const errorMessage = document.getElementById('error-message');
+        const loadingSpinner = document.querySelector('.loading-spinner');
+        const sidebar = document.querySelector('.sidebar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const playPauseBtn = document.getElementById('play-pause');
+        const volumeSlider = document.getElementById('volume-slider');
+        const qualitySelect = document.getElementById('quality-select');
+        const pipButton = document.getElementById('pip-button');
+        const favoritesList = document.getElementById('favorites-list');
+        const recentList = document.getElementById('recent-list');
 
-        async function fetchChannels(url) {
+        let channels = [];
+        let filteredChannels = [];
+        let currentChannel = null;
+        let hls = null;
+
+        // Fetch and initialize channels
+        async function initializeChannels() {
             try {
-                const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-                const response = await fetch(proxyUrl + url);
-                const text = await response.text();
-                return parseChannels(text);
+                showLoading(true);
+                const response = await fetch(rawUrl);
+                const data = await response.text();
+                channels = parseChannels(data);
+                filteredChannels = [...channels];
+                renderChannels();
+                initializeCategoryFilter();
+                showLoading(false);
             } catch (error) {
-                console.error('Error fetching channels:', error);
-                return [];
+                showError('Failed to load channels. Please try again later.');
+                showLoading(false);
             }
         }
 
+        // Parse channel data
         function parseChannels(data) {
             const lines = data.split('\n');
-            const channels = [];
-            for (let i = 0; i < lines.length; i++) {
-                if (lines[i].startsWith('#EXTINF')) {
-                    const logoMatch = lines[i].match(/tvg-logo="([^"]+)"/);
-                    const titleMatch = lines[i].match(/, (.+)/);
-                    const groupMatch = lines[i].match(/group-title="([^"]+)"/);
-                    const url = lines[i + 1];
-                    if (logoMatch && titleMatch && url) {
-                        channels.push({
-                            logo: logoMatch[1],
-                            title: titleMatch[1],
-                            url: url.trim(),
-                            category: groupMatch ? groupMatch[1].toLowerCase() : 'other',
-                            valid: true
-                        });
+            const parsedChannels = [];
+            let currentChannel = {};
+
+            for (const line of lines) {
+                if (line.startsWith('#EXTINF:')) {
+                    const matches = line.match(/tvg-logo="([^"]*)".*,(.+)/);
+                    if (matches) {
+                        currentChannel.logo = matches[1];
+                        currentChannel.name = matches[2].trim();
                     }
+                    const groupMatch = line.match(/group-title="([^"]*)"/);
+                    currentChannel.category = groupMatch ? groupMatch[1] : 'Uncategorized';
+                } else if (line.trim() !== '' && !line.startsWith('#')) {
+                    currentChannel.url = line.trim();
+                    parsedChannels.push({ ...currentChannel });
+                    currentChannel = {};
                 }
             }
-            return channels;
+
+            return parsedChannels;
         }
 
-        async function initializeChannels() {
-            channelListSpinner.style.display = 'flex';
-            allChannels = await fetchChannels(rawUrl);
-            channelListSpinner.style.display = 'none';
-            renderChannels(allChannels);
-            setupInfiniteScroll();
-        }
-
-        function renderChannels(channels, append = false) {
-            if (!append) {
-                channelList.innerHTML = '';
-            }
-            const fragment = document.createDocumentFragment();
-            const startIndex = (currentPage - 1) * channelsPerPage;
-            const endIndex = startIndex + channelsPerPage;
-            const channelsToRender = channels.slice(startIndex, endIndex);
-
-            channelsToRender.forEach((channel, index) => {
-                if (channel.valid) {
-                    const card = createChannelCard(channel, startIndex + index);
-                    fragment.appendChild(card);
-                }
+        // Render channels in the grid
+        function renderChannels() {
+            channelGrid.innerHTML = '';
+            filteredChannels.forEach((channel, index) => {
+                const card = createChannelCard(channel, index);
+                channelGrid.appendChild(card);
             });
-            channelList.appendChild(fragment);
         }
 
+        // Create a channel card element
         function createChannelCard(channel, index) {
             const card = document.createElement('div');
             card.className = 'channel-card';
             card.innerHTML = `
-                <img src="${channel.logo}" alt="${channel.title}" class="channel-logo" loading="lazy">
-                <div class="channel-details">
-                    <p>${channel.title}</p>
+                <img src="${channel.logo || 'placeholder.png'}" alt="${channel.name}" loading="lazy">
+                <div class="channel-info">
+                    <h3>${channel.name}</h3>
+                    <p>${channel.category}</p>
                 </div>
             `;
-            card.onclick = () => playChannel(channel);
+            card.addEventListener('click', () => playChannel(channel));
             return card;
         }
 
-        function playChannel(channel) {
-            loadingAnimation.style.display = 'block';
-            document.getElementById('video-container').scrollIntoView({ behavior: 'smooth' });
+        // Initialize category filter
+        function initializeCategoryFilter() {
+            const categories = [...new Set(channels.map(channel => channel.category))];
+            categoryFilter.innerHTML = `
+                <button class="category-btn active" data-category="all">All</button>
+                ${categories.map(category => `
+                    <button class="category-btn" data-category="${category}">${category}</button>
+                `).join('')}
+            `;
 
-            if (currentHls) {
-                currentHls.destroy();
-            }
+            categoryFilter.addEventListener('click', (e) => {
+                if (e.target.classList.contains('category-btn')) {
+                    const category = e.target.dataset.category;
+                    filterChannels(category);
+                    document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+                    e.target.classList.add('active');
+                }
+            });
+        }
+
+        // Filter channels by category
+        function filterChannels(category) {
+            filteredChannels = category === 'all' 
+                ? channels 
+                : channels.filter(channel => channel.category === category);
+            renderChannels();
+        }
+
+        // Play selected channel
+        function playChannel(channel) {
+            showLoading(true);
+            currentChannel = channel;
+            nowPlaying.textContent = `Now Playing: ${channel.name}`;
 
             if (Hls.isSupported()) {
-                currentHls = new Hls({
-                    maxBufferLength: 30,
-                    maxMaxBufferLength: 60,
-                    maxBufferSize: 60 * 1000 * 1000
+                if (hls) {
+                    hls.destroy();
+                }
+                hls = new Hls();
+                hls.loadSource(channel.url);
+                hls.attachMedia(player);
+                hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                    player.play();
+                    updateQualityOptions();
+                    showLoading(false);
                 });
-                currentHls.loadSource(channel.url);
-                currentHls.attachMedia(player);
-
-                currentHls.on(Hls.Events.MANIFEST_PARSED, () => {
-                    player.play().finally(() => {
-                        loadingAnimation.style.display = 'none';
-                        nowPlaying.textContent = `Now Playing: ${channel.title}`;
-                    });
-                });
-
-                currentHls.on(Hls.Events.ERROR, (event, data) => {
-                    console.error('HLS error:', data);
-                    loadingAnimation.style.display = 'none';
+                hls.on(Hls.Events.ERROR, (event, data) => {
+                    if (data.fatal) {
+                        showError(`Failed to load the channel: ${channel.name}`);
+                        showLoading(false);
+                    }
                 });
             } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
                 player.src = channel.url;
-                player.play().finally(() => {
-                    loadingAnimation.style.display = 'none';
-                    nowPlaying.textContent = `Now Playing: ${channel.title}`;
+                player.addEventListener('loadedmetadata', () => {
+                player.play();
+                    showLoading(false);
                 });
             } else {
-                alert('Your browser does not support HLS playback.');
-                loadingAnimation.style.display = 'none';
+                showError('Your browser does not support HLS playback.');
+                showLoading(false);
+            }
+
+            addToRecent(channel);
+        }
+
+        // Update quality options
+        function updateQualityOptions() {
+            if (hls) {
+                const levels = hls.levels;
+                qualitySelect.innerHTML = levels.map((level, index) => `
+                    <option value="${index}">${level.height}p</option>
+                `).join('');
+                qualitySelect.value = hls.currentLevel;
             }
         }
 
-        searchInput.addEventListener('input', debounce((e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            const filteredChannels = allChannels.filter(channel => 
-                channel.title.toLowerCase().includes(searchTerm)
-            );
-            currentPage = 1;
-            renderChannels(filteredChannels);
-        }, 300));
+        // Show/hide loading spinner
+        function showLoading(show) {
+            loadingSpinner.style.display = show ? 'block' : 'none';
+        }
 
-        categoryButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                categoryButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-                const category = button.dataset.category;
-                const filteredChannels = category === 'all' 
-                    ? allChannels 
-                    : allChannels.filter(channel => channel.category === category);
-                currentPage = 1;
-                renderChannels(filteredChannels);
-            });
+        // Show error message
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 5000);
+        }
+
+        // Add channel to recent list
+        function addToRecent(channel) {
+            const recentChannels = JSON.parse(localStorage.getItem('recentChannels') || '[]');
+            const updatedRecent = [channel, ...recentChannels.filter(c => c.name !== channel.name)].slice(0, 5);
+            localStorage.setItem('recentChannels', JSON.stringify(updatedRecent));
+            updateRecentList();
+        }
+
+        // Update recent channels list
+        function updateRecentList() {
+            const recentChannels = JSON.parse(localStorage.getItem('recentChannels') || '[]');
+            recentList.innerHTML = recentChannels.map(channel => `
+                <div class="recent-item" data-url="${channel.url}">${channel.name}</div>
+            `).join('');
+        }
+
+        // Event Listeners
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            filteredChannels = channels.filter(channel => 
+                channel.name.toLowerCase().includes(searchTerm) ||
+                channel.category.toLowerCase().includes(searchTerm)
+            );
+            renderChannels();
         });
 
-        function setupInfiniteScroll() {
-            window.addEventListener('scroll', debounce(() => {
-                if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) {
-                    currentPage++;
-                    renderChannels(allChannels, true);
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+
+        playPauseBtn.addEventListener('click', () => {
+            if (player.paused) {
+                player.play();
+                playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            } else {
+                player.pause();
+                playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+            }
+        });
+
+        volumeSlider.addEventListener('input', (e) => {
+            player.volume = e.target.value;
+        });
+
+        qualitySelect.addEventListener('change', (e) => {
+            hls.currentLevel = parseInt(e.target.value);
+        });
+
+        pipButton.addEventListener('click', () => {
+            if (document.pictureInPictureEnabled) {
+                if (document.pictureInPictureElement) {
+                    document.exitPictureInPicture();
+                } else {
+                    player.requestPictureInPicture();
                 }
-            }, 200));
-        }
+            }
+        });
 
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
-        }
+        favoritesList.addEventListener('click', (e) => {
+            if (e.target.classList.contains('favorite-item')) {
+                const channelUrl = e.target.dataset.url;
+                const channel = channels.find(c => c.url === channelUrl);
+                if (channel) {
+                    playChannel(channel);
+                }
+            }
+        });
 
+        recentList.addEventListener('click', (e) => {
+            if (e.target.classList.contains('recent-item')) {
+                const channelUrl = e.target.dataset.url;
+                const channel = channels.find(c => c.url === channelUrl);
+                if (channel) {
+                    playChannel(channel);
+                }
+            }
+        });
+
+        // Initialize the application
         initializeChannels();
+        updateRecentList();
     </script>
 </body>
 </html>
