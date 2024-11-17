@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Advanced Bangla IPTV</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.0/hls.min.js"></script>
@@ -252,6 +252,22 @@
             color: var(--accent-color);
         }
 
+        #channel-list-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary-color);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2rem;
@@ -299,6 +315,10 @@
         <div id="now-playing"></div>
     </div>
 
+    <div id="channel-list-spinner">
+        <div class="spinner"></div>
+    </div>
+
     <div id="channel-list"></div>
 
     <footer>
@@ -307,19 +327,23 @@
     </footer>
 
     <script>
-        const rawUrl = 'https://raw.githubusercontent.com/tareqaus/vision/main/IPTV';
+        const rawUrl = 'https://raw.githubusercontent.com/likhonisaac/ip-tv/refs/heads/main/IPTV';
         const player = document.getElementById('video-player');
         const channelList = document.getElementById('channel-list');
         const loadingAnimation = document.querySelector('.loading-animation');
         const searchInput = document.getElementById('search-input');
         const categoryButtons = document.querySelectorAll('.category-btn');
         const nowPlaying = document.getElementById('now-playing');
+        const channelListSpinner = document.getElementById('channel-list-spinner');
         let currentHls = null;
         let allChannels = [];
+        let currentPage = 1;
+        const channelsPerPage = 20;
 
         async function fetchChannels(url) {
             try {
-                const response = await fetch(url);
+                const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+                const response = await fetch(proxyUrl + url);
                 const text = await response.text();
                 return parseChannels(text);
             } catch (error) {
@@ -343,7 +367,7 @@
                             title: titleMatch[1],
                             url: url.trim(),
                             category: groupMatch ? groupMatch[1].toLowerCase() : 'other',
-                            valid: false
+                            valid: true
                         });
                     }
                 }
@@ -351,40 +375,37 @@
             return channels;
         }
 
-        async function checkChannelAvailability(channel) {
-            try {
-                const response = await fetch(channel.url, { method: 'HEAD' });
-                if (response.ok) {
-                    channel.valid = true;
-                }
-            } catch (error) {
-                console.warn(`Channel "${channel.title}" is unavailable.`);
-            }
-        }
-
         async function initializeChannels() {
+            channelListSpinner.style.display = 'flex';
             allChannels = await fetchChannels(rawUrl);
-            await Promise.all(
-                allChannels.map(channel => checkChannelAvailability(channel))
-            );
+            channelListSpinner.style.display = 'none';
             renderChannels(allChannels);
+            setupInfiniteScroll();
         }
 
-        function renderChannels(channels) {
-            channelList.innerHTML = '';
-            channels.forEach((channel, index) => {
+        function renderChannels(channels, append = false) {
+            if (!append) {
+                channelList.innerHTML = '';
+            }
+            const fragment = document.createDocumentFragment();
+            const startIndex = (currentPage - 1) * channelsPerPage;
+            const endIndex = startIndex + channelsPerPage;
+            const channelsToRender = channels.slice(startIndex, endIndex);
+
+            channelsToRender.forEach((channel, index) => {
                 if (channel.valid) {
-                    const card = createChannelCard(channel, index);
-                    channelList.appendChild(card);
+                    const card = createChannelCard(channel, startIndex + index);
+                    fragment.appendChild(card);
                 }
             });
+            channelList.appendChild(fragment);
         }
 
         function createChannelCard(channel, index) {
             const card = document.createElement('div');
             card.className = 'channel-card';
             card.innerHTML = `
-                <img src="${channel.logo}" alt="${channel.title}" class="channel-logo">
+                <img src="${channel.logo}" alt="${channel.title}" class="channel-logo" loading="lazy">
                 <div class="channel-details">
                     <p>${channel.title}</p>
                 </div>
@@ -433,13 +454,14 @@
             }
         }
 
-        searchInput.addEventListener('input', (e) => {
+        searchInput.addEventListener('input', debounce((e) => {
             const searchTerm = e.target.value.toLowerCase();
             const filteredChannels = allChannels.filter(channel => 
                 channel.title.toLowerCase().includes(searchTerm)
             );
+            currentPage = 1;
             renderChannels(filteredChannels);
-        });
+        }, 300));
 
         categoryButtons.forEach(button => {
             button.addEventListener('click', () => {
@@ -449,9 +471,31 @@
                 const filteredChannels = category === 'all' 
                     ? allChannels 
                     : allChannels.filter(channel => channel.category === category);
+                currentPage = 1;
                 renderChannels(filteredChannels);
             });
         });
+
+        function setupInfiniteScroll() {
+            window.addEventListener('scroll', debounce(() => {
+                if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) {
+                    currentPage++;
+                    renderChannels(allChannels, true);
+                }
+            }, 200));
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
 
         initializeChannels();
     </script>
