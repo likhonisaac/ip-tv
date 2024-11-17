@@ -16,6 +16,7 @@
             --card-background: #132f4c;
             --text-primary: #ffffff;
             --text-secondary: #b2bac2;
+            --error-color: #ff5252;
         }
 
         body {
@@ -38,23 +39,26 @@
             overflow: hidden;
         }
 
-        .header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.1) 0%, transparent 60%);
-        }
-
         .header h1 {
-            font-size: 3rem;
+            font-size: 2.5rem;
             margin: 0;
             text-align: center;
             font-weight: 700;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            position: relative;
+        }
+
+        .status-banner {
+            background-color: var(--error-color);
+            color: white;
+            padding: 0.5rem;
+            text-align: center;
+            display: none;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
         }
 
         #video-container {
@@ -66,11 +70,6 @@
             overflow: hidden;
             box-shadow: 0 8px 32px rgba(0,0,0,0.5);
             background: var(--card-background);
-            transition: transform 0.3s ease;
-        }
-
-        #video-container:hover {
-            transform: translateY(-5px);
         }
 
         #video-player {
@@ -86,7 +85,6 @@
             padding: 1.5rem;
             max-width: 1400px;
             margin: 0 auto;
-            flex-grow: 1;
         }
 
         .channel-card {
@@ -94,71 +92,78 @@
             border-radius: 1rem;
             overflow: hidden;
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
             position: relative;
         }
 
-        .channel-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 12px 28px rgba(0,0,0,0.3);
+        .channel-card.offline {
+            opacity: 0.7;
+            pointer-events: none;
         }
 
-        .channel-card::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 1rem;
-            border: 2px solid transparent;
-            transition: border-color 0.3s ease;
-        }
-
-        .channel-card:hover::after {
-            border-color: var(--accent-color);
+        .channel-card:not(.offline):hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
         }
 
         .channel-logo {
             width: 100%;
             height: 180px;
             object-fit: cover;
-            transition: transform 0.4s ease;
-        }
-
-        .channel-card:hover .channel-logo {
-            transform: scale(1.05);
         }
 
         .channel-details {
-            padding: 1.25rem;
+            padding: 1rem;
             text-align: center;
-            background: linear-gradient(0deg, var(--card-background) 0%, rgba(19, 47, 76, 0.8) 100%);
         }
 
-        .channel-details p {
-            margin: 0;
-            font-size: 1.1rem;
-            color: var(--text-primary);
-            font-weight: 500;
+        .status-indicator {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #4caf50;
         }
 
-        .loading-animation {
+        .offline .status-indicator {
+            background-color: var(--error-color);
+        }
+
+        .retry-button {
+            display: none;
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 60px;
-            height: 60px;
-            display: none;
+            padding: 0.5rem 1rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
         }
 
-        .loading-animation::after {
-            content: '';
+        #loading-overlay {
             position: absolute;
-            width: 100%;
-            height: 100%;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255,255,255,0.3);
             border-radius: 50%;
-            border: 3px solid rgba(255,255,255,0.1);
             border-top-color: var(--primary-color);
-            animation: spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+            animation: spin 1s linear infinite;
         }
 
         @keyframes spin {
@@ -166,169 +171,256 @@
         }
 
         footer {
-            text-align: center;
+            margin-top: auto;
             padding: 1.5rem;
-            background-color: var(--card-background);
-            border-top: 1px solid rgba(255,255,255,0.1);
-            margin-top: 3rem;
+            text-align: center;
+            background: var(--card-background);
         }
 
-        footer p {
-            color: var(--text-secondary);
-            margin: 0;
+        .error-toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--error-color);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 4px;
+            display: none;
+            animation: fadeIn 0.3s ease-out;
         }
 
-        footer a {
-            color: var(--accent-color);
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        footer a:hover {
-            color: var(--primary-color);
-        }
-
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2rem;
-            }
-
-            #channel-list {
-                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-                padding: 1rem;
-            }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, 20px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
         }
     </style>
 </head>
 <body>
-    <header class="header">
-    </header>
+
+
+    <div class="status-banner" id="status-banner">
+        Network connectivity issues detected. Some channels may be unavailable.
+    </div>
 
     <div id="video-container">
-        <div class="loading-animation"></div>
+        <div id="loading-overlay">
+            <div class="spinner"></div>
+        </div>
         <video id="video-player" controls></video>
     </div>
 
     <div id="channel-list"></div>
 
+    <div class="error-toast" id="error-toast"></div>
+
     <footer>
-        <p>© 2024 Bangla IPTV | Built with ❤️ and Modern Web Technology<br>
-        Powered by <a href="https://t.me/RexxCheat" target="_blank">t.me/RexxCheat</a></p>
+        <p>© 2024 Advanced Bangla IPTV | Improved with Enhanced Error Handling</p>
     </footer>
 
     <script>
-        const rawUrl = 'https://raw.githubusercontent.com/tareqaus/vision/main/IPTV';
         const player = document.getElementById('video-player');
         const channelList = document.getElementById('channel-list');
-        const loadingAnimation = document.querySelector('.loading-animation');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const statusBanner = document.getElementById('status-banner');
+        const errorToast = document.getElementById('error-toast');
         let currentHls = null;
+        let retryCount = 0;
+        const MAX_RETRIES = 3;
 
-        async function fetchChannels(url) {
-            try {
-                const response = await fetch(url);
-                const text = await response.text();
-                return parseChannels(text);
-            } catch (error) {
-                console.error('Error fetching channels:', error);
-                return [];
+        class Channel {
+            constructor(title, url, logo) {
+                this.title = title;
+                this.url = url;
+                this.logo = logo;
+                this.status = 'unknown';
+                this.lastChecked = null;
+            }
+
+            async checkAvailability() {
+                try {
+                    const response = await fetch(this.url, { 
+                        method: 'HEAD',
+                        timeout: 5000
+                    });
+                    this.status = response.ok ? 'online' : 'offline';
+                } catch (error) {
+                    this.status = 'offline';
+                }
+                this.lastChecked = new Date();
+                return this.status === 'online';
             }
         }
 
-        function parseChannels(data) {
-            const lines = data.split('\n');
-            const channels = [];
-            for (let i = 0; i < lines.length; i++) {
-                if (lines[i].startsWith('#EXTINF')) {
-                    const logoMatch = lines[i].match(/tvg-logo="([^"]+)"/);
-                    const titleMatch = lines[i].match(/, (.+)/);
-                    const url = lines[i + 1];
-                    if (logoMatch && titleMatch && url) {
-                        channels.push({
-                            logo: logoMatch[1],
-                            title: titleMatch[1],
-                            url: url.trim(),
-                            valid: false
-                        });
-                    }
+        class IPTVPlayer {
+            constructor() {
+                this.channels = [];
+                this.currentChannel = null;
+                this.networkStatus = 'online';
+            }
+
+            async initialize() {
+                this.setupNetworkMonitoring();
+                await this.loadChannels();
+                this.renderChannels();
+            }
+
+            setupNetworkMonitoring() {
+                window.addEventListener('online', () => this.handleNetworkChange('online'));
+                window.addEventListener('offline', () => this.handleNetworkChange('offline'));
+            }
+
+            handleNetworkChange(status) {
+                this.networkStatus = status;
+                statusBanner.style.display = status === 'offline' ? 'block' : 'none';
+                if (status === 'online') {
+                    this.refreshChannelStatus();
                 }
             }
-            return channels;
-        }
 
-        async function checkChannelAvailability(channel) {
-            try {
-                const response = await fetch(channel.url, { method: 'HEAD' });
-                if (response.ok) {
-                    channel.valid = true;
-                }
-            } catch (error) {
-                console.warn(`Channel "${channel.title}" is unavailable.`);
+            async loadChannels() {
+                // Sample channels - in production, these would be loaded from an API
+                this.channels = [
+                    new Channel('BTV HD', 'http://cdn01.palki.tv/live/BTV-M/tracks-v1a1/mono.m3u8', '/api/placeholder/280/180'),
+                    new Channel('Channel I', 'http://176.119.29.52/live.ts?channelId=88&uid=8164', '/api/placeholder/280/180'),
+                    new Channel('Colors Bangla', 'http://170.254.18.107/COLORS/index.m3u8', '/api/placeholder/280/180')
+                ];
+                
+                await this.refreshChannelStatus();
             }
-        }
 
-        async function initializeChannels() {
-            const channels = await fetchChannels(rawUrl);
-            await Promise.all(
-                channels.map(channel => checkChannelAvailability(channel))
-            );
+            async refreshChannelStatus() {
+                const checks = this.channels.map(channel => channel.checkAvailability());
+                await Promise.all(checks);
+                this.renderChannels();
+            }
 
-            channelList.innerHTML = '';
-            channels.forEach((channel, index) => {
-                if (channel.valid) {
-                    const card = createChannelCard(channel, index);
+            renderChannels() {
+                channelList.innerHTML = '';
+                this.channels.forEach(channel => {
+                    const card = this.createChannelCard(channel);
                     channelList.appendChild(card);
+                });
+            }
+
+            createChannelCard(channel) {
+                const card = document.createElement('div');
+                card.className = `channel-card ${channel.status === 'offline' ? 'offline' : ''}`;
+                card.innerHTML = `
+                    <div class="status-indicator"></div>
+                    <img src="${channel.logo}" alt="${channel.title}" class="channel-logo">
+                    <div class="channel-details">
+                        <h3>${channel.title}</h3>
+                        <p>${channel.status === 'online' ? 'Available' : 'Currently Offline'}</p>
+                    </div>
+                    ${channel.status === 'offline' ? '<button class="retry-button">Retry</button>' : ''}
+                `;
+
+                if (channel.status === 'online') {
+                    card.onclick = () => this.playChannel(channel);
                 }
-            });
-        }
 
-        function createChannelCard(channel, index) {
-            const card = document.createElement('div');
-            card.className = 'channel-card';
-            card.innerHTML = `
-                <img src="${channel.logo}" alt="${channel.title}" class="channel-logo">
-                <div class="channel-details">
-                    <p>${channel.title}</p>
-                </div>
-            `;
-            card.onclick = () => playChannel(channel);
-            return card;
-        }
+                const retryButton = card.querySelector('.retry-button');
+                if (retryButton) {
+                    retryButton.onclick = async (e) => {
+                        e.stopPropagation();
+                        await this.retryChannel(channel, card);
+                    };
+                }
 
-        function playChannel(channel) {
-            loadingAnimation.style.display = 'block';
-            document.getElementById('video-container').scrollIntoView({ behavior: 'smooth' });
-
-            if (currentHls) {
-                currentHls.destroy();
+                return card;
             }
 
-            if (Hls.isSupported()) {
-                currentHls = new Hls({
-                    maxBufferLength: 30,
-                    maxMaxBufferLength: 60,
-                    maxBufferSize: 60 * 1000 * 1000
-                });
-                currentHls.loadSource(channel.url);
-                currentHls.attachMedia(player);
+            async retryChannel(channel, card) {
+                card.querySelector('.retry-button').style.display = 'none';
+                const isAvailable = await channel.checkAvailability();
+                if (isAvailable) {
+                    card.className = 'channel-card';
+                    card.onclick = () => this.playChannel(channel);
+                }
+                this.renderChannels();
+            }
 
-                currentHls.on(Hls.Events.MANIFEST_PARSED, () => {
-                    player.play().finally(() => loadingAnimation.style.display = 'none');
-                });
+            async playChannel(channel) {
+                if (this.networkStatus === 'offline') {
+                    this.showError('No network connection available');
+                    return;
+                }
 
-                currentHls.on(Hls.Events.ERROR, (event, data) => {
-                    console.error('HLS error:', data);
-                    loadingAnimation.style.display = 'none';
-                });
-            } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
-                player.src = channel.url;
-                player.play().finally(() => loadingAnimation.style.display = 'none');
-            } else {
-                alert('Your browser does not support HLS playback.');
-                loadingAnimation.style.display = 'none';
+                loadingOverlay.style.display = 'flex';
+                
+                try {
+                    if (currentHls) {
+                        currentHls.destroy();
+                    }
+
+                    if (Hls.isSupported()) {
+                        const hls = new Hls({
+                            maxBufferLength: 30,
+                            maxMaxBufferLength: 60,
+                            maxBufferSize: 60 * 1000 * 1000,
+                            debug: false
+                        });
+
+                        hls.on(Hls.Events.ERROR, (event, data) => {
+                            if (data.fatal) {
+                                this.handlePlaybackError(channel, data.type);
+                            }
+                        });
+
+                        hls.loadSource(channel.url);
+                        hls.attachMedia(player);
+                        currentHls = hls;
+
+                        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                            player.play()
+                                .then(() => {
+                                    loadingOverlay.style.display = 'none';
+                                    retryCount = 0;
+                                })
+                                .catch(error => {
+                                    this.handlePlaybackError(channel, 'playback');
+                                });
+                        });
+                    } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
+                        player.src = channel.url;
+                        await player.play();
+                        loadingOverlay.style.display = 'none';
+                    } else {
+                        throw new Error('HLS not supported');
+                    }
+                } catch (error) {
+                    this.handlePlaybackError(channel, 'fatal');
+                }
+            }
+
+            handlePlaybackError(channel, type) {
+                loadingOverlay.style.display = 'none';
+                
+                if (retryCount < MAX_RETRIES) {
+                    retryCount++;
+                    this.showError(`Playback failed. Retrying... (${retryCount}/${MAX_RETRIES})`);
+                    setTimeout(() => this.playChannel(channel), 2000);
+                } else {
+                    retryCount = 0;
+                    this.showError('Unable to play channel. Please try again later.');
+                    channel.status = 'offline';
+                    this.renderChannels();
+                }
+            }
+
+            showError(message) {
+                errorToast.textContent = message;
+                errorToast.style.display = 'block';
+                setTimeout(() => {
+                    errorToast.style.display = 'none';
+                }, 3000);
             }
         }
 
-        initializeChannels();
+        // Initialize the player
+        const iptvPlayer = new IPTVPlayer();
+        iptvPlayer.initialize();
     </script>
 </body>
 </html>
