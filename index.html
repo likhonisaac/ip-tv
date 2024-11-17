@@ -3,191 +3,305 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced IPTV Player</title>
+    <title>Enhanced IPTV Player</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
         :root {
-            --primary-color: #3498db;
-            --background-color: #f5f5f5;
-            --text-color: #333;
-            --card-bg: #fff;
-            --card-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            --primary-color: #2563eb;
+            --secondary-color: #1d4ed8;
+            --background-color: #f3f4f6;
+            --text-color: #1f2937;
+            --error-color: #dc2626;
+            --success-color: #059669;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --transition-speed: 0.3s;
         }
 
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--background-color);
+        /* Enhanced Animations */
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
-        header {
-            background-color: var(--primary-color);
-            color: #fff;
-            padding: 15px;
-            text-align: center;
-            box-shadow: var(--card-shadow);
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
-        header input {
-            width: 300px;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            outline: none;
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
-        .container {
-            display: flex;
-            flex-wrap: wrap;
-            padding: 20px;
-            gap: 20px;
+        /* Custom Classes */
+        .loading-spinner {
+            animation: spin 1s linear infinite;
         }
 
         .channel-card {
-            width: calc(25% - 20px);
-            background: var(--card-bg);
-            border-radius: 10px;
-            overflow: hidden;
-            text-align: center;
-            box-shadow: var(--card-shadow);
-            transition: transform 0.3s;
+            animation: slideUp 0.3s ease-out;
+            transition: all var(--transition-speed) ease-in-out;
         }
 
         .channel-card:hover {
-            transform: scale(1.05);
+            transform: translateY(-4px);
+            box-shadow: var(--card-shadow);
         }
 
-        .channel-card img {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
+        .alert {
+            animation: fadeIn 0.3s ease-out;
         }
 
-        .channel-card h3 {
-            margin: 10px 0;
-            font-size: 1.2em;
-            color: var(--text-color);
+        /* Enhanced Responsive Design */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            padding: 1.5rem;
         }
 
-        #video-container {
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-color);
+        }
+
+        /* Enhanced Loading States */
+        .global-spinner {
             position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 30%;
-            background: #000;
-            display: none;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: var(--card-shadow);
         }
 
-        #video-container video {
-            width: 100%;
-            height: 100%;
-        }
-
-        .spinner {
-            display: none;
+        .validation-spinner {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 1rem;
+            border-radius: 0.5rem;
         }
 
-        .spinner i {
-            font-size: 50px;
-            color: var(--primary-color);
-            animation: spin 1s linear infinite;
+        /* Enhanced Video Player */
+        .video-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40%;
+            background: #000;
+            z-index: 1000;
+            transition: all var(--transition-speed) ease-in-out;
         }
 
-        @keyframes spin {
-            from {
-                transform: rotate(0deg);
-            }
-            to {
-                transform: rotate(360deg);
-            }
+        .video-container.fullscreen {
+            height: 100%;
         }
 
-        @media (max-width: 768px) {
-            .channel-card {
-                width: calc(50% - 20px);
-            }
-
-            header input {
-                width: 80%;
-            }
+        /* Enhanced Search Bar */
+        .search-container {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto;
         }
 
-        @media (max-width: 480px) {
-            .channel-card {
-                width: 100%;
-            }
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border-radius: 0.5rem;
+            border: 2px solid transparent;
+            background: white;
+            transition: all var(--transition-speed) ease-in-out;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+
+        /* Error Messages */
+        .error-message {
+            background-color: #fee2e2;
+            border-left: 4px solid var(--error-color);
+            color: var(--error-color);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        /* Success Messages */
+        .success-message {
+            background-color: #d1fae5;
+            border-left: 4px solid var(--success-color);
+            color: var(--success-color);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+            animation: fadeIn 0.3s ease-out;
         }
     </style>
 </head>
-<body>
-    <header>
-        <h1>IPTV Player</h1>
-        <input type="text" id="search" placeholder="Search Channels...">
+<body class="bg-gray-100 min-h-screen">
+    <!-- Header -->
+    <header class="bg-blue-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <h1 class="text-3xl font-bold mb-4 text-center">Enhanced IPTV Player</h1>
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input 
+                    type="text" 
+                    id="search" 
+                    class="search-input"
+                    placeholder="Search channels..."
+                    aria-label="Search channels"
+                >
+            </div>
+        </div>
     </header>
 
-    <div class="spinner">
-        <i class="fas fa-spinner"></i>
+    <!-- Global Loading Spinner -->
+    <div id="globalSpinner" class="global-spinner hidden">
+        <div class="flex items-center space-x-3">
+            <i class="fas fa-circle-notch loading-spinner text-blue-600 text-3xl"></i>
+            <span class="text-gray-700 font-medium">Loading channels...</span>
+        </div>
     </div>
 
-    <div class="container" id="channels"></div>
+    <!-- Error Container -->
+    <div id="errorContainer" class="container mx-auto px-4 mt-4"></div>
 
-    <div id="video-container">
-        <video id="video-player" controls autoplay></video>
+    <!-- Channels Grid -->
+    <div id="channels" class="grid-container"></div>
+
+    <!-- Video Player Container -->
+    <div id="videoContainer" class="video-container hidden">
+        <div class="absolute top-2 right-2 z-10 space-x-2">
+            <button id="toggleFullscreen" class="bg-white/20 hover:bg-white/30 p-2 rounded">
+                <i class="fas fa-expand"></i>
+            </button>
+            <button id="closePlayer" class="bg-white/20 hover:bg-white/30 p-2 rounded">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <video id="videoPlayer" controls class="w-full h-full"></video>
     </div>
 
     <script>
-        const proxyUrl = "https://corsproxy.io/?"; // Alternative CORS proxy
+        // Constants and Variables
+        const proxyUrl = "https://corsproxy.io/?";
         const playlistUrl = "https://raw.githubusercontent.com/likhonisaac/ip-tv/refs/heads/main/IPTV";
+        let channels = [];
+        let currentChannel = null;
 
-        const container = document.getElementById('channels');
-        const videoContainer = document.getElementById('video-container');
-        const videoPlayer = document.getElementById('video-player');
+        // DOM Elements
+        const channelsGrid = document.getElementById('channels');
+        const videoContainer = document.getElementById('videoContainer');
+        const videoPlayer = document.getElementById('videoPlayer');
         const searchInput = document.getElementById('search');
-        const spinner = document.querySelector('.spinner');
+        const globalSpinner = document.getElementById('globalSpinner');
+        const errorContainer = document.getElementById('errorContainer');
+        const toggleFullscreenBtn = document.getElementById('toggleFullscreen');
+        const closePlayerBtn = document.getElementById('closePlayer');
 
-        async function fetchPlaylist(url) {
+        // Utility Functions
+        function showError(message) {
+            errorContainer.innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    ${message}
+                </div>
+            `;
+            setTimeout(() => {
+                errorContainer.innerHTML = '';
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            errorContainer.innerHTML = `
+                <div class="success-message">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    ${message}
+                </div>
+            `;
+            setTimeout(() => {
+                errorContainer.innerHTML = '';
+            }, 3000);
+        }
+
+        function showGlobalSpinner(show) {
+            globalSpinner.classList.toggle('hidden', !show);
+        }
+
+        // Channel Functions
+        async function fetchPlaylist() {
             try {
-                spinner.style.display = 'block'; // Show spinner
-                const response = await fetch(proxyUrl + url);
+                showGlobalSpinner(true);
+                const response = await fetch(proxyUrl + playlistUrl);
+                if (!response.ok) throw new Error('Failed to fetch playlist');
                 const data = await response.text();
-                spinner.style.display = 'none'; // Hide spinner
+                showSuccess('Channels loaded successfully');
                 return data;
             } catch (error) {
-                console.error("Failed to fetch playlist:", error);
-                spinner.style.display = 'none'; // Hide spinner
+                showError('Failed to fetch playlist: ' + error.message);
                 return null;
+            } finally {
+                showGlobalSpinner(false);
             }
         }
 
         function parsePlaylist(data) {
             const lines = data.split('\n');
-            const channels = [];
+            const parsedChannels = [];
             let currentChannel = null;
 
             lines.forEach(line => {
                 if (line.startsWith('#EXTINF')) {
                     const logoMatch = line.match(/tvg-logo="(.*?)"/);
                     const nameMatch = line.match(/,(.*)$/);
-
+                    
                     currentChannel = {
-                        logo: logoMatch ? logoMatch[1] : '',
-                        name: nameMatch ? nameMatch[1] : '',
+                        logo: logoMatch ? logoMatch[1] : 'https://via.placeholder.com/150',
+                        name: nameMatch ? nameMatch[1].trim() : 'Unnamed Channel',
                     };
                 } else if (line.startsWith('http') && currentChannel) {
                     currentChannel.url = line.trim();
-                    channels.push(currentChannel);
+                    parsedChannels.push(currentChannel);
                     currentChannel = null;
                 }
             });
 
-            return channels;
+            return parsedChannels;
         }
 
         async function validateChannel(url) {
@@ -199,52 +313,97 @@
             }
         }
 
-        async function loadChannels(channels) {
-            container.innerHTML = "";
-            for (const channel of channels) {
+        function createChannelCard(channel) {
+            const card = document.createElement('div');
+            card.className = 'channel-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl';
+            card.innerHTML = `
+                <div class="relative pb-2/3">
+                    <img 
+                        src="${channel.logo}" 
+                        alt="${channel.name}"
+                        class="absolute h-full w-full object-cover"
+                        onerror="this.src='https://via.placeholder.com/150'"
+                    >
+                </div>
+                <div class="p-4">
+                    <h3 class="font-medium text-gray-900 truncate">${channel.name}</h3>
+                    <div class="validation-spinner hidden">
+                        <i class="fas fa-circle-notch loading-spinner text-blue-600"></i>
+                    </div>
+                </div>
+            `;
+
+            card.addEventListener('click', () => playChannel(channel));
+            return card;
+        }
+
+        async function playChannel(channel) {
+            const spinner = document.querySelector('.validation-spinner');
+            spinner.classList.remove('hidden');
+
+            try {
                 const isValid = await validateChannel(channel.url);
-                if (isValid) {
-                    const card = document.createElement('div');
-                    card.className = 'channel-card';
-                    card.innerHTML = `
-                        <img src="${channel.logo}" alt="${channel.name}">
-                        <h3>${channel.name}</h3>
-                    `;
-                    card.addEventListener('click', () => {
-                        playChannel(channel.url);
-                    });
-                    container.appendChild(card);
+                if (!isValid) {
+                    showError(`Cannot play ${channel.name}: Channel unavailable`);
+                    return;
                 }
+
+                currentChannel = channel;
+                videoContainer.classList.remove('hidden');
+                
+                if (Hls.isSupported()) {
+                    const hls = new Hls();
+                    hls.loadSource(channel.url);
+                    hls.attachMedia(videoPlayer);
+                } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                    videoPlayer.src = channel.url;
+                }
+
+                showSuccess(`Now playing: ${channel.name}`);
+            } catch (error) {
+                showError(`Error playing ${channel.name}: ${error.message}`);
+            } finally {
+                spinner.classList.add('hidden');
             }
         }
 
-        function playChannel(url) {
-            if (Hls.isSupported()) {
-                const hls = new Hls();
-                hls.loadSource(url);
-                hls.attachMedia(videoPlayer);
-            } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
-                videoPlayer.src = url;
-            }
-            videoContainer.style.display = 'block';
-        }
-
-        searchInput.addEventListener('input', () => {
-            const query = searchInput.value.toLowerCase();
-            document.querySelectorAll('.channel-card').forEach(card => {
-                const name = card.querySelector('h3').textContent.toLowerCase();
-                card.style.display = name.includes(query) ? '' : 'none';
-            });
+        // Event Listeners
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const filteredChannels = channels.filter(channel => 
+                channel.name.toLowerCase().includes(query)
+            );
+            renderChannels(filteredChannels);
         });
 
+        toggleFullscreenBtn.addEventListener('click', () => {
+            videoContainer.classList.toggle('fullscreen');
+        });
+
+        closePlayerBtn.addEventListener('click', () => {
+            videoContainer.classList.add('hidden');
+            videoPlayer.pause();
+            currentChannel = null;
+        });
+
+        // Render Functions
+        function renderChannels(channelsToRender) {
+            channelsGrid.innerHTML = '';
+            channelsToRender.forEach(channel => {
+                channelsGrid.appendChild(createChannelCard(channel));
+            });
+        }
+
+        // Initialize
         async function init() {
-            const playlist = await fetchPlaylist(playlistUrl);
+            const playlist = await fetchPlaylist();
             if (playlist) {
-                const channels = parsePlaylist(playlist);
-                await loadChannels(channels);
+                channels = parsePlaylist(playlist);
+                renderChannels(channels);
             }
         }
 
+        // Start the application
         init();
     </script>
 </body>
