@@ -2,69 +2,57 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Advanced IPTV Player</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
         :root {
-            --primary-color: #0078d4;
-            --background-color: #f0f4f8;
+            --primary-color: #3498db;
+            --background-color: #f5f5f5;
             --text-color: #333;
-            --card-background: #fff;
+            --card-bg: #fff;
             --card-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            --transition-speed: 0.3s;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
         }
 
         body {
             font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
             background-color: var(--background-color);
-            color: var(--text-color);
-            line-height: 1.6;
         }
 
         header {
             background-color: var(--primary-color);
             color: #fff;
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            padding: 15px;
+            text-align: center;
             box-shadow: var(--card-shadow);
         }
 
-        header h1 {
-            font-size: 1.5rem;
-        }
-
         header input {
-            padding: 5px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
             width: 300px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            outline: none;
         }
 
         .container {
             display: flex;
             flex-wrap: wrap;
-            gap: 20px;
             padding: 20px;
+            gap: 20px;
         }
 
         .channel-card {
-            background-color: var(--card-background);
+            width: calc(25% - 20px);
+            background: var(--card-bg);
             border-radius: 10px;
             overflow: hidden;
-            width: calc(25% - 20px);
+            text-align: center;
             box-shadow: var(--card-shadow);
-            cursor: pointer;
-            transition: transform var(--transition-speed) ease-in-out;
+            transition: transform 0.3s;
         }
 
         .channel-card:hover {
@@ -78,10 +66,9 @@
         }
 
         .channel-card h3 {
-            text-align: center;
-            padding: 10px;
-            font-size: 1rem;
-            margin: 0;
+            margin: 10px 0;
+            font-size: 1.2em;
+            color: var(--text-color);
         }
 
         #video-container {
@@ -89,8 +76,8 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            background: black;
             height: 30%;
+            background: #000;
             display: none;
         }
 
@@ -103,47 +90,52 @@
             .channel-card {
                 width: calc(50% - 20px);
             }
+
+            header input {
+                width: 80%;
+            }
         }
 
         @media (max-width: 480px) {
             .channel-card {
-                width: calc(100% - 20px);
+                width: 100%;
             }
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>Bangla IPTV</h1>
-        <input type="text" id="search-input" placeholder="Search channels...">
+        <h1>IPTV Player</h1>
+        <input type="text" id="search" placeholder="Search Channels...">
     </header>
 
-    <div class="container" id="channel-container"></div>
+    <div class="container" id="channels"></div>
 
     <div id="video-container">
         <video id="video-player" controls autoplay></video>
     </div>
 
     <script>
-        const m3uUrl = "https://raw.githubusercontent.com/likhonisaac/ip-tv/refs/heads/main/IPTV";
+        const proxyUrl = "https://cors-anywhere.herokuapp.com/"; // Use a CORS proxy
+        const playlistUrl = "https://raw.githubusercontent.com/likhonisaac/ip-tv/refs/heads/main/IPTV";
 
-        const container = document.getElementById('channel-container');
+        const container = document.getElementById('channels');
         const videoContainer = document.getElementById('video-container');
         const videoPlayer = document.getElementById('video-player');
-        const searchInput = document.getElementById('search-input');
+        const searchInput = document.getElementById('search');
 
-        const fetchM3U = async () => {
+        async function fetchPlaylist(url) {
             try {
-                const response = await fetch(m3uUrl);
-                const text = await response.text();
-                return text;
+                const response = await fetch(proxyUrl + url);
+                const data = await response.text();
+                return data;
             } catch (error) {
-                console.error('Error fetching M3U file:', error);
+                console.error("Failed to fetch playlist:", error);
                 return null;
             }
-        };
+        }
 
-        const parseM3U = (data) => {
+        function parsePlaylist(data) {
             const lines = data.split('\n');
             const channels = [];
             let currentChannel = null;
@@ -165,19 +157,19 @@
             });
 
             return channels;
-        };
+        }
 
-        const validateChannel = async (url) => {
+        async function validateChannel(url) {
             try {
-                const response = await fetch(url, { method: 'HEAD' });
-                return response.status === 200;
+                const response = await fetch(proxyUrl + url, { method: 'HEAD' });
+                return response.ok;
             } catch {
                 return false;
             }
-        };
+        }
 
-        const displayChannels = async (channels) => {
-            container.innerHTML = '';
+        async function loadChannels(channels) {
+            container.innerHTML = "";
             for (const channel of channels) {
                 const isValid = await validateChannel(channel.url);
                 if (isValid) {
@@ -187,32 +179,40 @@
                         <img src="${channel.logo}" alt="${channel.name}">
                         <h3>${channel.name}</h3>
                     `;
-
                     card.addEventListener('click', () => {
-                        videoPlayer.src = channel.url;
-                        videoContainer.style.display = 'block';
+                        playChannel(channel.url);
                     });
-
                     container.appendChild(card);
                 }
             }
-        };
+        }
 
-        const init = async () => {
-            const m3uData = await fetchM3U();
-            if (m3uData) {
-                const channels = parseM3U(m3uData);
-                await displayChannels(channels);
-
-                searchInput.addEventListener('input', () => {
-                    const query = searchInput.value.toLowerCase();
-                    document.querySelectorAll('.channel-card').forEach(card => {
-                        const name = card.querySelector('h3').textContent.toLowerCase();
-                        card.style.display = name.includes(query) ? '' : 'none';
-                    });
-                });
+        function playChannel(url) {
+            if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(url);
+                hls.attachMedia(videoPlayer);
+            } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                videoPlayer.src = url;
             }
-        };
+            videoContainer.style.display = 'block';
+        }
+
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.toLowerCase();
+            document.querySelectorAll('.channel-card').forEach(card => {
+                const name = card.querySelector('h3').textContent.toLowerCase();
+                card.style.display = name.includes(query) ? '' : 'none';
+            });
+        });
+
+        async function init() {
+            const playlist = await fetchPlaylist(playlistUrl);
+            if (playlist) {
+                const channels = parsePlaylist(playlist);
+                await loadChannels(channels);
+            }
+        }
 
         init();
     </script>
